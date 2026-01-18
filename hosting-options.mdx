@@ -1,0 +1,134 @@
+---
+title: Hosting Options
+---
+
+HipoCap, the Runtime Security & Governance Platform for AI Agents, can run as a private deployment or you can request a cloud demo.
+
+## Try Hipocap Cloud (Book a Demo)
+
+We currently offer Hipocap Cloud via guided onboarding. To try Hipocap Cloud:
+
+1. [Book a demo with our team](https://hipocap.com/contact) or email us at [team@hipocap.com](mailto:team@hipocap.com).
+2. We'll walk you through the platform's features, help you set up a project, and provide your API keys.
+3. Receive test credentials for sandbox access or ask about a production setup.
+
+<Info>
+We provide personalized onboarding and solutions architecture for Hipocap Cloud to ensure your use case is supported. Production access is available for qualified teams—book a live session to discuss.
+</Info>
+
+### Self-serve and Custom Use Cases
+
+If you'd like to use Hipocap hands-on right away, consider running it self-hosted (see below) or let us know your requirements, and we'll help you get started.
+
+### Usage
+
+After receiving your credentials from the demo, initialize Hipocap in your application:
+
+```python
+import os
+from hipocap import Hipocap
+
+# Read environment variables
+HIPOCAP_SERVER_URL = os.environ.get("HIPOCAP_SERVER_URL", "http://localhost:8006")
+HIPOCAP_API_KEY = os.environ.get("HIPOCAP_API_KEY")
+HIPOCAP_USER_ID = os.environ.get("HIPOCAP_USER_ID")
+OBS_BASE_URL = os.environ.get("HIPOCAP_OBS_BASE_URL", "http://localhost")
+OBS_HTTP_PORT = int(os.environ.get("HIPOCAP_OBS_HTTP_PORT", "8000"))
+OBS_GRPC_PORT = int(os.environ.get("HIPOCAP_OBS_GRPC_PORT", "8001"))
+
+# Initialize Hipocap
+Hipocap.initialize(
+    project_api_key=HIPOCAP_API_KEY,
+    base_url=OBS_BASE_URL,
+    http_port=OBS_HTTP_PORT,
+    grpc_port=OBS_GRPC_PORT,
+    hipocap_base_url=HIPOCAP_SERVER_URL,
+    hipocap_timeout=60,
+    hipocap_user_id=HIPOCAP_USER_ID,
+)
+```
+
+Next: When you have your credentials, begin setting up tracing by following the [Tracing guide](/tracing/introduction).
+
+## Self-hosted (Docker Compose)
+
+### Quick Start
+
+Run the full Hipocap stack locally with Docker Compose:
+
+```bash
+git clone https://github.com/hipocap/hipocap
+cd hipocap
+docker compose -f docker-compose-local-dev.yml up -d
+```
+
+The dashboard is available at `http://localhost:5667/`. Create a project through the onboarding flow, then grab your API key from project settings.
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```bash
+# Database
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_DB=postgres
+HIPOCAP_DB_NAME=hipocap_second
+
+# Hipocap
+HIPOCAP_API_KEY=your_hipocap_api_key
+HIPOCAP_USER_ID=your_user_id
+HIPOCAP_SERVER_URL=http://localhost:8006
+HIPOCAP_OBS_BASE_URL=http://localhost
+HIPOCAP_OBS_HTTP_PORT=8000
+HIPOCAP_OBS_GRPC_PORT=8001
+
+# LLM Provider (for security analysis)
+OPENAI_API_KEY=your_openai_or_openrouter_key
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_MODEL=x-ai/grok-4.1-fast
+
+# Optional: Model Configuration
+GUARD_MODEL=meta-llama/Prompt-Guard-86M
+HF_TOKEN=your_huggingface_token  # If needed for gated models
+```
+
+### Point the SDK to your local instance
+
+<Info>
+  Hipocap Shield currently supports Python only. TypeScript/JavaScript support is not available.
+</Info>
+
+```python
+import os
+from hipocap import Hipocap
+
+# Read environment variables
+HIPOCAP_SERVER_URL = os.environ.get("HIPOCAP_SERVER_URL", "http://localhost:8006")
+HIPOCAP_API_KEY = os.environ.get("HIPOCAP_API_KEY")
+HIPOCAP_USER_ID = os.environ.get("HIPOCAP_USER_ID")
+OBS_BASE_URL = os.environ.get("HIPOCAP_OBS_BASE_URL", "http://localhost")
+OBS_HTTP_PORT = int(os.environ.get("HIPOCAP_OBS_HTTP_PORT", "8000"))
+OBS_GRPC_PORT = int(os.environ.get("HIPOCAP_OBS_GRPC_PORT", "8001"))
+
+# Initialize Hipocap
+Hipocap.initialize(
+    project_api_key=HIPOCAP_API_KEY,
+    base_url=OBS_BASE_URL,
+    http_port=OBS_HTTP_PORT,
+    grpc_port=OBS_GRPC_PORT,
+    hipocap_base_url=HIPOCAP_SERVER_URL,
+    hipocap_timeout=60,
+    hipocap_user_id=HIPOCAP_USER_ID,
+)
+```
+
+### Production Deployment
+
+For production, use `docker-compose-full.yml`:
+
+```bash
+docker compose -f docker-compose-full.yml up -d
+```
+
+For more details, see the [GitHub repository](https://github.com/hipocap/hipocap).

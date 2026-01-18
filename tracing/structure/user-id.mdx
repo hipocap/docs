@@ -1,0 +1,50 @@
+---
+title: User ID
+---
+
+Link traces to your users to make debugging and analytics easier.
+
+- Set a user ID at the trace level so every span in the trace carries it.
+- Use it to filter traces by user in the Laminar UI and analyze patterns across user segments.
+
+Assign the user ID at the entry point of your application (API handler, consumer, job) so all child spans inherit it.
+
+## Setting User ID
+
+You can associate a user with a trace either by:
+
+1. Passing `userId` / `user_id` to `observe` / `@observe`
+2. Calling `setTraceUserId` / `set_trace_user_id` inside a span context
+
+<Tabs items={['TypeScript', 'Python']}>
+  <Tab title="TypeScript">
+    ```typescript
+    import { observe } from '@lmnr-ai/lmnr';
+
+    export async function handleRequest(userId: string) {
+      return observe({ name: 'handleRequest', userId }, async () => {
+        // ... LLM calls / tools ...
+      });
+    }
+    ```
+
+    See also: [`observe(..., { userId })`](/sdk/observe#ts-observe) and [`Laminar.setTraceUserId`](/sdk/trace-methods#ts-laminar-set-trace-user-id)
+  </Tab>
+  <Tab title="Python">
+    ```python
+    from lmnr import Laminar, observe
+
+    @observe()
+    def handle_request(user_id: str):
+        Laminar.set_trace_user_id(user_id)
+        # ... LLM calls / tools ...
+    ```
+
+    See also: [`@observe()`](/sdk/observe#py-observe) and [`Laminar.set_trace_user_id`](/sdk/trace-methods#py-laminar-set-trace-user-id)
+  </Tab>
+</Tabs>
+
+## Privacy Considerations
+
+- Prefer anonymous or pseudonymous IDs over sensitive personal information (avoid emails, phone numbers, names).
+- For sensitive operations, avoid recording inputs/outputs with `observe({ ignoreInput: true, ignoreOutput: true })` / `@observe(ignore_input=True, ignore_output=True)`.

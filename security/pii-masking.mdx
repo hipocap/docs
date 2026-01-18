@@ -1,0 +1,146 @@
+---
+title: Keyword Detection
+---
+
+HipoCap Shield can detect and protect sensitive keywords and patterns in function inputs and outputs.
+
+## What is Keyword Detection?
+
+Keyword detection identifies sensitive patterns and keywords like:
+- Security keywords (confidential, classified, top secret)
+- Business keywords (proprietary, trade secret)
+- Action keywords (password reset, account verification)
+- Financial keywords (wire transfer, payment required)
+- Custom keywords you define
+
+## Enabling Keyword Detection
+
+### Basic Setup
+
+Enable keyword detection when analyzing a function:
+
+```python
+from hipocap import Hipocap
+
+client = Hipocap.hipocap_client
+
+result = client.analyze(
+    function_name="process_user_data",
+    function_result=data,
+    enable_keyword_detection=True
+)
+```
+
+### Custom Keywords
+
+Provide your own list of sensitive keywords:
+
+```python
+result = client.analyze(
+    function_name="process_user_data",
+    function_result=data,
+    enable_keyword_detection=True,
+    keywords=[
+        "confidential",
+        "classified",
+        "top secret",
+        "password reset",
+        "account verification"
+    ]
+)
+```
+
+## Default Keyword Patterns
+
+HipoCap automatically detects common sensitive keyword patterns:
+
+- **Security Keywords**: confidential, classified, top secret, restricted, sensitive
+- **Business Keywords**: proprietary, trade secret, do not share
+- **Action Keywords**: password reset, account verification, urgent action
+- **Financial Keywords**: wire transfer, payment required, refund, account suspended
+- **Personal Keywords**: SSN, social security, credit card, date of birth, mother's maiden name
+
+## Keyword Categories
+
+When keywords are detected, they're categorized:
+
+- **Security Keywords** - Confidentiality markers
+- **Business Keywords** - Proprietary information markers
+- **Action Keywords** - Urgent action requests
+- **Financial Keywords** - Financial transaction markers
+- **Personal Keywords** - Personal information markers
+
+## Response Format
+
+When keywords are detected, the analysis response includes:
+
+```python
+{
+    "keyword_detection": {
+        "detected_keywords": ["confidential", "SSN"],
+        "security_keywords": ["confidential"],
+        "personal_keywords": ["SSN"],
+        "keyword_positions": {
+            "confidential": 3,  # Number of occurrences
+            "SSN": 1
+        }
+    },
+    "final_decision": "BLOCKED",
+    "reason": "Sensitive keywords detected in function output"
+}
+```
+
+## Best Practices
+
+1. **Enable for Sensitive Functions** - Always enable keyword detection for functions that handle sensitive data
+2. **Custom Keywords** - Add domain-specific keywords relevant to your use case
+3. **Combine with Other Analysis** - Use keyword detection alongside LLM and quarantine analysis
+
+## Example: Email Processing
+
+```python
+from hipocap import Hipocap
+
+client = Hipocap.hipocap_client
+
+def process_email(email_content: str):
+    result = client.analyze(
+        function_name="process_email",
+        function_result=email_content,
+        enable_keyword_detection=True,
+        keywords=["confidential", "password reset", "account verification"],
+        llm_analysis=True  # Also check for sensitive keywords in LLM analysis
+    )
+    
+    keyword_detection = result.get("keyword_detection", {})
+    if keyword_detection and keyword_detection.get("detected_keywords"):
+        # Sensitive keywords detected - handle appropriately
+        personal_keywords = keyword_detection.get("personal_keywords", [])
+        if "SSN" in personal_keywords:
+            # Block or redact
+            return redact_sensitive_data(email_content)
+    
+    return email_content
+```
+
+## Integration with Policies
+
+Keyword detection can be configured in your governance policies:
+
+```json
+{
+  "functions": {
+    "process_user_data": {
+      "enable_keyword_detection": true,
+      "keywords": ["SSN", "credit card", "date of birth"],
+      "keyword_action": "BLOCK"
+    }
+  }
+}
+```
+
+## Next Steps
+
+- [Prompt Injection Protection](/security/prompt-injection) - Multi-stage analysis
+- [Threat Categories](/security/threat-categories) - Complete threat reference
+- [Governance Policies](/governance/policies) - Configure keyword detection rules in policies

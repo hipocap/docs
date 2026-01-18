@@ -1,43 +1,28 @@
-# Mintlify Starter Kit
+# Hipocap Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Welcome to the Hipocap documentation!
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+### Development
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+This repo uses [Mintlify](https://www.mintlify.com/) to build the documentation.
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+To get started, install the [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the documentation changes locally. To install, use the following command
 
 ```
-npm i -g mint
+npm i -g mintlify
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Run the following command at the root of your documentation (where mint.json is)
 
 ```
-mint dev
+mintlify dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Before committing, make sure to run `mintlify dev` to check that the changes are rendered correctly.
+Also run
 
-## Publishing changes
+```
+mintlify broken-links
+```
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+to verify that there are no broken links. This only works for full page links, not anchors, but it's better than nothing.

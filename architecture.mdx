@@ -1,0 +1,74 @@
+---
+title: Architecture
+---
+
+HipoCap combines AI security and observability into a unified platform. This page explains how the components work together.
+
+## Overview
+
+HipoCap consists of two main components:
+
+1. **HipoCap Shield** - Multi-stage security analysis and governance
+2. **Observability Platform** - Tracing, evaluations, and monitoring (powered by Laminar)
+
+<Info>
+  HipoCap Shield currently supports Python only. The observability features use Laminar, which supports both Python and TypeScript, but the security analysis (Shield) is Python-only.
+</Info>
+
+## Architecture Diagram
+
+<img src="/images/image.png" alt="Hipocap Architecture Diagram" style={{width: "100%", maxWidth: 800, border: "1px solid #222", borderRadius: 8}} />
+
+
+
+## How It Works
+
+### 1. Function Call Interception
+
+When your AI application makes a function call (e.g., `send_email`, `search_web`, `execute_code`), HipoCap Shield intercepts it before execution.
+
+### 2. Multi-Stage Security Analysis
+
+The Shield runs three stages of analysis:
+
+- **Stage 1: Input Analysis** - Uses Prompt Guard to detect malicious patterns in function inputs
+- **Stage 2: LLM Analysis** - Analyzes function results for threat indicators (S1-S14 categories)
+- **Stage 3: Quarantine Analysis** - Simulates infection by sending content to a quarantine LLM, then analyzes the output
+
+### 3. Governance & RBAC
+
+Before allowing function execution, HipoCap checks:
+- User roles and permissions
+- Function-level access control
+- Function chaining restrictions
+- Severity-based rules
+
+### 4. Decision Making
+
+Based on the analysis, HipoCap makes one of three decisions:
+- **ALLOW** - Function call is safe to execute
+- **BLOCK** - Function call is blocked due to security threat or policy violation
+- **REVIEW_REQUIRED** - Requires human review before execution
+
+### 5. Observability Integration
+
+Whether the call is allowed or blocked, all activity is traced and recorded in the observability platform. This gives you:
+- Complete audit trail of security decisions
+- Ability to analyze blocked attempts
+- Performance metrics and cost tracking
+- Full trace visibility for debugging
+
+## Key Benefits
+
+1. **Security First** - Threats are detected and blocked before execution
+2. **Governance** - Fine-grained control over who can call what functions
+3. **Observability** - Complete visibility into all AI operations
+4. **Compliance** - Audit trail for security and compliance requirements
+5. **No Code Changes** - Works with existing Laminar instrumentation
+
+## Next Steps
+
+- [Set up the Shield](/security/shield-setup) - Configure security analysis
+- [Configure RBAC](/governance/roles-permissions) - Set up role-based access control
+- [Start Tracing](/tracing/introduction) - Instrument your application
+

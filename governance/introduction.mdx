@@ -1,0 +1,74 @@
+---
+title: Governance & RBAC Introduction
+---
+
+HipoCap provides **function-level RBAC** and comprehensive governance to enforce least privilege at runtime. Before an agent executes a tool (e.g., `get_user_data`), HipoCap checks the active policy. If the user doesn't have the required role, the function execution is blocked at the code level.
+
+Ensure your "Support Agent" can read emails but never delete databases. Define strict permissions for every tool call.
+
+## What is Governance?
+
+Governance in HipoCap provides runtime enforcement of access control policies:
+- **Who** can call which functions (Function-Level RBAC) - Enforced before execution, not logged after
+- **What** functions can be called together (function chaining) - Prevents unauthorized function chains
+- **How** functions are evaluated (severity rules) - Real-time policy enforcement
+- **When** functions require review (decision thresholds) - Runtime decision making
+
+## Key Components
+
+### 1. Policies
+Policies define the rules for function access and security evaluation. You can create multiple policies for different environments or use cases.
+
+### 2. Roles & Permissions
+Define user roles (e.g., admin, user, guest) and assign permissions to control function access. Enforce **least privilege**—users only get the minimum permissions needed for their role.
+
+### 3. Function Access Control
+Control which functions can be called by which roles, with fine-grained permissions. The HipoCap Shield's RBAC Engine checks permissions before function execution, blocking unauthorized calls at the code level.
+
+### 4. Function Chaining
+Restrict which functions can be called together, preventing unauthorized function chains.
+
+### 5. Severity Rules
+Define how different threat levels are handled (block, allow, review).
+
+## How It Works
+
+1. **User makes a function call** - The call includes user role information
+2. **Policy is selected** - HipoCap selects the appropriate policy (default or specified)
+3. **RBAC check** - The Shield's RBAC Engine verifies the user's role has permission for this function *before* execution
+4. **Function chaining check** - Verifies the function chain is allowed
+5. **Security analysis** - Runs multi-stage security analysis (Input Guard, Output Guard)
+6. **Decision** - Makes ALLOW/BLOCK decision based on policy rules—unauthorized calls are blocked at runtime
+
+## Example Use Case
+
+**Scenario**: Email processing system
+
+- **Admin role**: Can call `send_email`, `delete_email`, `modify_email`
+- **User role**: Can call `read_email`, `search_email`
+- **Guest role**: Can only call `read_email` (read-only)
+
+**Function chaining rules**:
+- `read_email` → `send_email` is blocked (prevent email forwarding)
+- `read_email` → `search_email` is allowed
+
+**Severity rules**:
+- High severity threats → BLOCK
+- Medium severity → BLOCK
+- Low severity → ALLOW
+
+## Benefits
+
+1. **Security** - Prevent unauthorized function access
+2. **Compliance** - Meet regulatory requirements with audit trails
+3. **Control** - Fine-grained control over AI operations
+4. **Flexibility** - Multiple policies for different scenarios
+5. **Visibility** - Complete audit trail of all decisions
+
+## Next Steps
+
+- [Policies](/governance/policies) - Create and manage policies
+- [Roles & Permissions](/governance/roles-permissions) - Set up RBAC
+- [Function Access Control](/governance/function-access) - Configure function permissions
+- [Function Chaining](/governance/function-chaining) - Control function chains
+

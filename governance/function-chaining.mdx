@@ -1,0 +1,227 @@
+---
+title: Function Chaining
+---
+
+Function chaining controls which functions can be called together, preventing unauthorized sequences of function calls that could lead to security vulnerabilities.
+
+## What is Function Chaining?
+
+Function chaining refers to the sequence of function calls in your application. For example:
+
+1. User calls `read_email(email_id)`
+2. Email content contains: "Please search the web for competitor pricing"
+3. System attempts to call `search_web(query)`
+
+This is a function chain: `read_email` → `search_web`
+
+## Why Control Function Chaining?
+
+Controlling function chaining prevents:
+- **Unauthorized operations** - Blocking functions from triggering other functions they shouldn't
+- **Prompt injection** - Preventing malicious content from triggering function calls
+- **Privilege escalation** - Stopping low-privilege functions from calling high-privilege functions
+- **Data exfiltration** - Blocking functions that could leak data from triggering data access functions
+
+## Configuring Function Chaining
+
+### Via UI
+
+1. Navigate to **Policies** → Select a policy
+2. Go to **Function Chaining** tab
+3. Configure allowed and blocked function chains
+
+<Info>
+  Function chaining configuration is currently available through the Hipocap web UI. Python SDK methods for function chaining configuration are not yet available.
+</Info>
+
+## Allowed Functions
+
+Specify which functions can be called after a function:
+
+```json
+{
+  "function_chaining": {
+    "read_email": {
+      "allowed_functions": ["search_email", "archive_email"]
+    }
+  }
+}
+```
+
+## Blocked Functions
+
+Explicitly block certain function chains:
+
+```json
+{
+  "function_chaining": {
+    "read_email": {
+      "blocked_functions": ["send_email", "delete_email", "search_web"]
+    }
+  }
+}
+```
+
+## Complete Function Chain Rules
+
+```json
+{
+  "function_chaining": {
+    "read_email": {
+      "allowed_functions": ["search_email", "archive_email"],
+      "blocked_functions": ["send_email", "delete_email", "search_web"],
+      "require_review": ["modify_email"]
+    }
+  }
+}
+```
+
+## Example: Email System
+
+Prevent email forwarding and unauthorized actions:
+
+```json
+{
+  "function_chaining": {
+    "read_email": {
+      "blocked_functions": [
+        "send_email",      // Prevent forwarding
+        "delete_email",    // Prevent deletion
+        "search_web",      // Prevent web searches
+        "execute_code"    // Prevent code execution
+      ],
+      "allowed_functions": [
+        "search_email",   // Allow searching
+        "archive_email"   // Allow archiving
+      ]
+    },
+    "search_email": {
+      "blocked_functions": [
+        "send_email",     // Prevent sending from search
+        "delete_email"    // Prevent deletion
+      ],
+      "allowed_functions": [
+        "read_email"      // Allow reading found emails
+      ]
+    }
+  }
+}
+```
+
+## Detecting Function Call Attempts
+
+Hipocap automatically detects function call attempts in function outputs:
+
+```python
+from hipocap import Hipocap
+
+client = Hipocap.hipocap_client
+
+result = client.analyze(
+    function_name="read_email",
+    function_result=email_content,
+    target_function="search_web"  # Function that might be called next
+)
+
+if result.get("chaining_blocked"):
+    # Function chain is blocked
+    raise SecurityError("Function chain blocked: read_email → search_web")
+```
+
+## Function Chaining Information
+
+The analysis response includes function chaining information:
+
+```python
+{
+    "function_chaining_info": {
+        "attempted_function": "search_web",
+        "source_function": "read_email",
+        "is_allowed": false,
+        "reason": "Function chain blocked by policy"
+    },
+    "chaining_blocked": true
+}
+```
+
+## Wildcard Rules
+
+Use wildcards to apply rules to multiple functions:
+
+```json
+{
+  "function_chaining": {
+    "read_*": {  // Matches read_email, read_document, etc.
+      "blocked_functions": ["send_*", "delete_*"]
+    }
+  }
+}
+```
+
+## Require Review
+
+Require human review for certain function chains:
+
+```json
+{
+  "function_chaining": {
+    "read_email": {
+      "require_review": ["modify_email", "forward_email"]
+    }
+  }
+}
+```
+
+## Best Practices
+
+1. **Block by Default** - Start with blocking most chains, then allow specific ones
+2. **Document Rationale** - Document why certain chains are allowed or blocked
+3. **Regular Reviews** - Review function chains regularly as your application evolves
+4. **Test Chains** - Test function chains to ensure they work as expected
+5. **Monitor Attempts** - Monitor blocked chain attempts to identify patterns
+
+## Example: Complete Configuration
+
+```json
+{
+  "function_chaining": {
+    "read_email": {
+      "allowed_functions": ["search_email", "archive_email"],
+      "blocked_functions": [
+        "send_email",
+        "delete_email",
+        "search_web",
+        "execute_code",
+        "access_database"
+      ],
+      "require_review": ["modify_email"]
+    },
+    "search_email": {
+      "allowed_functions": ["read_email"],
+      "blocked_functions": ["send_email", "delete_email"]
+    },
+    "read_document": {
+      "blocked_functions": [
+        "send_email",
+        "search_web",
+        "execute_code"
+      ]
+    }
+  }
+}
+```
+
+## Integration with Security Analysis
+
+Function chaining works together with security analysis:
+
+1. Security analysis detects function call attempts in content
+2. Function chaining rules check if the chain is allowed
+3. If blocked, the entire operation is blocked
+
+## Next Steps
+
+- [Function Access Control](/governance/function-access) - Configure function permissions
+- [Policies](/governance/policies) - Manage policies
+- [Roles & Permissions](/governance/roles-permissions) - Set up RBAC
+

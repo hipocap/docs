@@ -1,0 +1,66 @@
+---
+title: AI Security Introduction
+---
+
+HipoCap Shield provides **runtime protection** for your AI applications, intercepting and blocking prompt injection attacks, sensitive keyword exposure, and unauthorized function access *before* they reach the LLM or the user.
+
+Stop analyzing what went wrong. Prevent it from happening.
+
+## What is the Hipocap Shield?
+
+The HipoCap Shield is the **Enforcement Layer** that sits between your AI application and function calls. Unlike traditional observability tools that analyze events after they occur, the Shield actively intercepts and blocks threats in real-time. It analyzes every function call request through three stages of security analysis before allowing execution, ensuring threats never reach your models or users.
+
+## Threat Categories
+
+Hipocap detects threats across 14 categories (S1-S14):
+
+- **S1**: Violent Crimes
+- **S2**: Non-Violent Crimes
+- **S3**: Sex-Related Crimes
+- **S4**: Child Sexual Exploitation
+- **S5**: Defamation
+- **S6**: Specialized Advice (medical, legal, financial)
+- **S7**: Privacy Violations
+- **S8**: Intellectual Property Violations
+- **S9**: Indiscriminate Weapons
+- **S10**: Hate Speech
+- **S11**: Suicide & Self-Harm
+- **S12**: Sexual Content
+- **S13**: Election Manipulation
+- **S14**: Code Interpreter Abuse
+
+## Multi-Stage Analysis
+
+### Stage 1: Input Analysis
+Uses Prompt Guard to detect malicious patterns in function inputs before execution.
+
+### Stage 2: LLM Analysis
+Analyzes function results for threat indicators, attack patterns, and function call attempts.
+
+### Stage 3: Quarantine Analysis
+Simulates infection by sending content to a quarantine LLM, then analyzes the output for hidden instructions.
+
+## Key Features
+
+- **Runtime Protection** - Intercepts and blocks threats *before* they reach the LLM or user, not after
+- **Prompt Injection Protection** - Detects and blocks indirect prompt injection attacks in real-time
+- **Keyword Detection** - Identifies and protects sensitive keywords and patterns before they're exposed
+- **Function Call Detection** - Detects unauthorized function call attempts embedded in content and blocks execution
+- **Keyword Detection** - Customizable keyword detection for sensitive patterns
+- **Real-time Analysis** - Fast analysis with configurable quick mode for low-latency requirements—security checks don't slow down your agents
+
+## How It Works
+
+1. Function call is intercepted by Hipocap Shield
+2. Multi-stage analysis runs (Input → LLM → Quarantine)
+3. RBAC and governance rules are checked
+4. Decision is made: ALLOW or BLOCK
+5. All activity is traced and logged for observability
+
+## Next Steps
+
+- [Set up the Shield](/security/shield-setup) - Configure security analysis
+- [Keyword Detection](/security/pii-masking) - Configure keyword detection
+- [Prompt Injection Protection](/security/prompt-injection) - Understand multi-stage analysis
+- [Threat Categories](/security/threat-categories) - Detailed reference for S1-S14 categories
+

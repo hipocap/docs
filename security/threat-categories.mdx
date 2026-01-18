@@ -1,0 +1,188 @@
+---
+title: Threat Categories
+---
+
+Hipocap Shield categorizes threats using 14 categories (S1-S14) based on industry standards for content safety.
+
+## Threat Indicator Categories
+
+### S1: Violent Crimes
+Content promoting or describing violent acts, including:
+- Physical violence
+- Assault
+- Murder
+- Terrorism
+
+**Example**: "How to build a bomb" or "Instructions for attacking someone"
+
+### S2: Non-Violent Crimes
+Content promoting illegal activities that don't involve violence:
+- Fraud
+- Theft
+- Hacking
+- Identity theft
+- Financial crimes
+
+**Example**: "How to commit credit card fraud" or "Stealing personal information"
+
+### S3: Sex-Related Crimes
+Content related to sexual crimes or exploitation:
+- Sexual assault
+- Non-consensual sexual content
+- Sexual exploitation
+
+**Example**: Content describing non-consensual sexual acts
+
+### S4: Child Sexual Exploitation
+Content involving minors in sexual contexts:
+- Child exploitation material
+- Grooming content
+- Any sexual content involving minors
+
+**Example**: Content that sexualizes minors
+
+### S5: Defamation
+Content that defames or harms reputation:
+- False accusations
+- Character assassination
+- Libelous content
+
+**Example**: "John Doe is a criminal" (without evidence)
+
+### S6: Specialized Advice
+Content providing dangerous specialized advice:
+- Medical advice (diagnosis, treatment)
+- Legal advice (specific legal guidance)
+- Financial advice (investment recommendations)
+
+**Example**: "You should take this medication" or "Invest all your money in this stock"
+
+### S7: Privacy
+Content violating privacy or containing sensitive information:
+- Sensitive keyword exposure
+- Privacy violations
+- Unauthorized data sharing
+
+**Example**: Sharing sensitive keywords or private information
+
+### S8: Intellectual Property
+Content violating copyright or intellectual property:
+- Copyright infringement
+- Trademark violations
+- Patent violations
+- Plagiarism
+
+**Example**: Reproducing copyrighted material without permission
+
+### S9: Indiscriminate Weapons
+Content about weapons of mass destruction:
+- Nuclear weapons
+- Biological weapons
+- Chemical weapons
+- Instructions for creating WMDs
+
+**Example**: "How to build a nuclear weapon"
+
+### S10: Hate
+Content promoting hate speech or discrimination:
+- Racism
+- Sexism
+- Religious discrimination
+- Homophobia
+- Transphobia
+
+**Example**: Content promoting discrimination against protected groups
+
+### S11: Suicide & Self-Harm
+Content promoting self-harm or suicide:
+- Suicide instructions
+- Self-harm encouragement
+- Methods for self-harm
+
+**Example**: "How to commit suicide" or encouraging self-harm
+
+### S12: Sexual Content
+Inappropriate sexual content:
+- Explicit sexual material
+- Pornographic content
+- Sexual content in inappropriate contexts
+
+**Example**: Explicit sexual descriptions or pornographic material
+
+### S13: Elections
+Content manipulating or interfering with elections:
+- Voter suppression
+- Election fraud instructions
+- Misinformation about elections
+- Interference with democratic processes
+
+**Example**: "How to rig an election" or spreading false election information
+
+### S14: Code Interpreter Abuse
+Attempts to abuse code execution capabilities:
+- Malicious code execution
+- System access attempts
+- Code injection
+- Exploitation of code interpreters
+
+**Example**: "Execute this code to access the database" or code injection attempts
+
+## Technical Indicators
+
+In addition to threat categories, Hipocap detects technical indicators:
+
+- **instruction_injection** - Direct injection of instructions
+- **contextual_blending** - Blending malicious content with legitimate content
+- **function_call_attempt** - Attempts to trigger function calls
+- **hidden_instructions** - Instructions hidden in content
+
+## Attack Patterns
+
+Hipocap identifies common attack patterns:
+
+- **Contextual Blending** - Malicious content blended with legitimate content
+- **Instruction Injection** - Direct injection of malicious instructions
+- **Function Call Attempt** - Attempts to trigger unauthorized function calls
+
+## Severity Levels
+
+Threats are assigned severity levels:
+
+- **Safe** - No threats detected
+- **Low** - Minor concerns, may require review
+- **Medium** - Significant concerns, likely should be blocked
+- **High** - Serious threats, should be blocked
+- **Critical** - Severe threats, must be blocked
+
+## Policy Configuration
+
+You can configure how each threat category is handled in your governance policies:
+
+```json
+{
+  "severity_rules": {
+    "S1": {
+      "action": "BLOCK",
+      "severity_threshold": "low"
+    },
+    "S7": {
+      "action": "BLOCK",
+      "severity_threshold": "medium"
+    }
+  }
+}
+```
+
+## Best Practices
+
+1. **Block Critical Categories** - Always block S1, S3, S4, S9, S11
+2. **Customize by Function** - Different functions may need different rules
+4. **Monitor Patterns** - Track which categories are most common in your use case
+5. **Regular Updates** - Keep threat detection rules updated
+
+## Next Steps
+
+- [Setting up the Shield](/security/shield-setup) - Configure threat detection
+- [Prompt Injection Protection](/security/prompt-injection) - Understand multi-stage analysis
+- [Governance Policies](/governance/policies) - Configure threat handling rules
+

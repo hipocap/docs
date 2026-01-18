@@ -1,0 +1,253 @@
+---
+title: Roles & Permissions
+---
+
+Hipocap uses role-based access control (RBAC) to control which users can call which functions.
+
+## What is RBAC?
+
+Role-Based Access Control (RBAC) assigns permissions to roles, and users are assigned roles. This provides:
+- **Centralized management** - Manage permissions in one place
+- **Scalability** - Easy to add new users by assigning roles
+- **Security** - Principle of least privilege
+- **Auditability** - Clear record of who has what access
+
+## Defining Roles
+
+### Via UI
+
+1. Navigate to **Policies** → Select a policy
+2. Go to **Roles** tab
+3. Add or edit roles
+4. Assign function permissions to each role
+
+<Info>
+  Role management is currently available through the Hipocap web UI. Python SDK methods for role management are not yet available.
+</Info>
+
+## Common Role Patterns
+
+### Admin Role
+
+Full access to all functions:
+
+```json
+{
+  "admin": {
+    "functions": ["*"],
+    "permissions": ["read", "write", "delete", "admin"]
+  }
+}
+```
+
+### User Role
+
+Standard user access:
+
+```json
+{
+  "user": {
+    "functions": [
+      "read_email",
+      "search_email",
+      "send_email"
+    ],
+    "permissions": ["read", "write"]
+  }
+}
+```
+
+### Guest Role
+
+Read-only access:
+
+```json
+{
+  "guest": {
+    "functions": ["read_email"],
+    "permissions": ["read"]
+  }
+}
+```
+
+### Analyst Role
+
+Analysis and read access:
+
+```json
+{
+  "analyst": {
+    "functions": [
+      "read_email",
+      "search_email",
+      "analyze_data"
+    ],
+    "permissions": ["read", "analyze"]
+  }
+}
+```
+
+## Using Roles in Function Calls
+
+### Specify User Role
+
+Pass the `user_role` parameter when calling `analyze()`:
+
+```python
+from hipocap import Hipocap
+
+client = Hipocap.hipocap_client
+
+result = client.analyze(
+    function_name="send_email",
+    function_result=email_content,
+    user_role="user"  # User's role
+)
+```
+
+### Role-Based Decision
+
+Hipocap checks if the user's role has permission for the function. The analysis result includes RBAC information:
+
+```python
+result = client.analyze(
+    function_name="send_email",
+    user_role="user",  # Check if 'user' role can call 'send_email'
+    function_result=email_content
+)
+
+if result.get("rbac_blocked"):
+    raise PermissionError("User role 'user' cannot call 'send_email'")
+```
+
+## Permission Types
+
+### Read
+- View function results
+- Read data
+- Search operations
+
+### Write
+- Create or modify data
+- Send operations
+- Update operations
+
+### Delete
+- Delete data
+- Remove operations
+
+### Admin
+- Administrative operations
+- Policy management
+- System configuration
+
+## Function-Level Permissions
+
+You can also define permissions at the function level:
+
+```json
+{
+  "functions": {
+    "send_email": {
+      "allowed_roles": ["admin", "user"],
+      "blocked_roles": ["guest"],
+      "require_permission": "write"
+    },
+    "delete_email": {
+      "allowed_roles": ["admin"],
+      "require_permission": "delete"
+    }
+  }
+}
+```
+
+## Dynamic Role Assignment
+
+Roles can be assigned dynamically based on context:
+
+```python
+# Get user role from your authentication system
+user_role = get_user_role(user_id)
+
+result = shield.analyze(
+    function_name="send_email",
+    user_role=user_role,  # Dynamic role assignment
+    function_result=email_content
+)
+```
+
+## Role Hierarchy
+
+You can implement role hierarchies:
+
+```json
+{
+  "roles": {
+    "admin": {
+      "inherits_from": [],  // No inheritance
+      "functions": ["*"]
+    },
+    "manager": {
+      "inherits_from": ["user"],  // Inherits user permissions
+      "functions": ["approve_email", "delete_email"]
+    },
+    "user": {
+      "inherits_from": ["guest"],  // Inherits guest permissions
+      "functions": ["send_email"]
+    },
+    "guest": {
+      "inherits_from": [],
+      "functions": ["read_email"]
+    }
+  }
+}
+```
+
+## Best Practices
+
+1. **Principle of Least Privilege** - Give users minimum permissions needed
+2. **Regular Audits** - Review role assignments regularly
+3. **Clear Naming** - Use clear, descriptive role names
+4. **Documentation** - Document what each role can do
+5. **Testing** - Test role permissions before production
+
+## Example: Email System
+
+```json
+{
+  "roles": {
+    "email_admin": {
+      "functions": [
+        "send_email",
+        "delete_email",
+        "modify_email",
+        "read_email",
+        "search_email"
+      ],
+      "permissions": ["read", "write", "delete", "admin"]
+    },
+    "email_user": {
+      "functions": [
+        "read_email",
+        "search_email",
+        "send_email"
+      ],
+      "permissions": ["read", "write"]
+    },
+    "email_reader": {
+      "functions": [
+        "read_email",
+        "search_email"
+      ],
+      "permissions": ["read"]
+    }
+  }
+}
+```
+
+## Next Steps
+
+- [Function Access Control](/governance/function-access) - Configure function permissions
+- [Policies](/governance/policies) - Manage policies
+- [Function Chaining](/governance/function-chaining) - Control function chains
+

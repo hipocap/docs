@@ -1,0 +1,257 @@
+---
+title: Function Access Control
+---
+
+Function Access Control lets you define fine-grained permissions for individual functions, controlling who can call what and under what conditions.
+
+## What is Function Access Control?
+
+Function Access Control allows you to:
+- Define which roles can call which functions
+- Set function-specific security rules
+- Configure function-level analysis settings
+- Define output restrictions
+
+## Configuring Function Access
+
+### Via UI
+
+1. Navigate to **Policies** → Select a policy
+2. Go to **Functions** tab
+3. Add or edit function configurations
+4. Set permissions and rules
+
+<Info>
+  Function access configuration is currently available through the Hipocap web UI. Python SDK methods for function configuration are not yet available.
+</Info>
+
+## Function Configuration Options
+
+### Allowed Roles
+
+Specify which roles can call this function:
+
+```json
+{
+  "functions": {
+    "send_email": {
+      "allowed_roles": ["admin", "user"]
+    }
+  }
+}
+```
+
+### Blocked Roles
+
+Explicitly block certain roles:
+
+```json
+{
+  "functions": {
+    "delete_email": {
+      "blocked_roles": ["guest", "user"]
+    }
+  }
+}
+```
+
+### Require Quarantine
+
+Force quarantine analysis for this function:
+
+```json
+{
+  "functions": {
+    "send_email": {
+      "require_quarantine": true
+    }
+  }
+}
+```
+
+### Keyword Detection
+
+Enable keyword detection for this function:
+
+```json
+{
+  "functions": {
+    "process_document": {
+      "enable_keyword_detection": true,
+      "keywords": ["confidential", "classified"]
+    }
+  }
+}
+```
+
+### Output Restrictions
+
+Restrict what can be returned from this function:
+
+```json
+{
+  "functions": {
+    "get_user_data": {
+      "output_restrictions": {
+        "block_sensitive_keywords": true,
+        "max_length": 1000,
+        "allowed_formats": ["text", "json"]
+      }
+    }
+  }
+}
+```
+
+## Severity Rules per Function
+
+Define function-specific severity handling:
+
+```json
+{
+  "functions": {
+    "send_email": {
+      "severity_rules": {
+        "critical": {
+          "action": "BLOCK",
+          "threshold": 0.9
+        },
+        "high": {
+          "action": "BLOCK",
+          "threshold": 0.7
+        },
+        "medium": {
+          "action": "BLOCK",
+          "threshold": 0.5
+        }
+      }
+    }
+  }
+}
+```
+
+## Function-Level Analysis Configuration
+
+Configure analysis stages per function:
+
+```json
+{
+  "functions": {
+    "critical_function": {
+      "input_analysis": true,
+      "llm_analysis": true,
+      "quarantine_analysis": true,
+      "quick_analysis": false
+    },
+    "standard_function": {
+      "input_analysis": true,
+      "llm_analysis": false,
+      "quarantine_analysis": false,
+      "quick_analysis": true
+    }
+  }
+}
+```
+
+## Wildcard Functions
+
+Use wildcards to apply rules to multiple functions:
+
+```json
+{
+  "functions": {
+    "email_*": {  // Matches send_email, read_email, etc.
+      "allowed_roles": ["admin", "user"],
+      "require_quarantine": true
+    },
+    "*_admin": {  // Matches any function ending in _admin
+      "allowed_roles": ["admin"]
+    }
+  }
+}
+```
+
+## Function Metadata
+
+Add metadata to functions for better organization:
+
+```json
+{
+  "functions": {
+    "send_email": {
+      "name": "Send Email",
+      "description": "Sends an email to the specified recipient",
+      "category": "communication",
+      "risk_level": "high",
+      "allowed_roles": ["admin", "user"]
+    }
+  }
+}
+```
+
+## Example: Complete Function Configuration
+
+```json
+{
+  "functions": {
+    "send_email": {
+      "allowed_roles": ["admin", "user"],
+      "blocked_roles": ["guest"],
+      "require_quarantine": true,
+      "enable_keyword_detection": true,
+      "keywords": ["confidential", "password reset"],
+      "input_analysis": true,
+      "llm_analysis": true,
+      "quarantine_analysis": true,
+      "quick_analysis": false,
+      "severity_rules": {
+        "critical": {
+          "action": "BLOCK",
+          "threshold": 0.9
+        },
+        "high": {
+          "action": "BLOCK",
+          "threshold": 0.7
+        }
+      },
+      "output_restrictions": {
+        "block_sensitive_keywords": true
+      }
+    }
+  }
+}
+```
+
+## Checking Function Access
+
+Hipocap automatically checks function access when analyzing:
+
+```python
+from hipocap import Hipocap
+
+client = Hipocap.hipocap_client
+
+result = client.analyze(
+    function_name="send_email",
+    user_role="user",
+    function_result=email_content
+)
+
+if result.get("rbac_blocked"):
+    # User role doesn't have permission
+    raise PermissionError("Access denied")
+```
+
+## Best Practices
+
+1. **Start Restrictive** - Begin with restrictive permissions, then open up as needed
+2. **Function-Specific Rules** - Configure rules per function based on risk level
+3. **Regular Reviews** - Review function access regularly
+4. **Documentation** - Document why each function has specific rules
+5. **Testing** - Test function access with different roles
+
+## Next Steps
+
+- [Roles & Permissions](/governance/roles-permissions) - Set up RBAC
+- [Function Chaining](/governance/function-chaining) - Control function chains
+- [Policies](/governance/policies) - Manage policies
+

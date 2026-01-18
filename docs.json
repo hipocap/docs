@@ -1,68 +1,165 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Hipocap documentation",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#22C55E",
+    "light": "#22C55E",
+    "dark": "#22C55E"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Introduction",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "getting-started",
+              "architecture",
+              "hosting-options"
             ]
           },
           {
-            "group": "Customization",
+            "group": "AI Security",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "security/introduction",
+              "security/shield-setup",
+              "security/pii-masking",
+              "security/prompt-injection",
+              "security/threat-categories"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Governance & RBAC",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "governance/introduction",
+              "governance/policies",
+              "governance/roles-permissions",
+              "governance/function-access",
+              "governance/function-chaining"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Observability",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              {
+                "group": "Tracing",
+                "pages": [
+                  "tracing/introduction",
+                  {
+                    "group": "Integrations",
+                    "pages": [
+                      "tracing/integrations/overview",
+                      "tracing/integrations/openai",
+                      "tracing/integrations/anthropic",
+                      "tracing/integrations/gemini",
+                      "tracing/integrations/langchain",
+                      "tracing/integrations/cohere",
+                      "tracing/integrations/vercel-ai-sdk",
+                      "tracing/integrations/nextjs",
+                      "tracing/integrations/litellm",
+                      "tracing/integrations/kernel",
+                      "tracing/integrations/claude-agent-sdk",
+                      "tracing/integrations/browser-use",
+                      "tracing/integrations/stagehand",
+                      "tracing/integrations/skyvern",
+                      "tracing/integrations/playwright",
+                      "tracing/integrations/puppeteer",
+                      "tracing/otel"
+                    ]
+                  },
+                  {
+                    "group": "Tracing Structure",
+                    "pages": [
+                      "tracing/structure/overview",
+                      "tracing/structure/observe-decorator",
+                      "tracing/structure/manual-span-creation",
+                      "tracing/structure/sessions",
+                      "tracing/structure/user-id",
+                      "tracing/structure/metadata",
+                      "tracing/structure/tags",
+                      "tracing/structure/images",
+                      "tracing/structure/continuing-traces",
+                      "tracing/structure/llm-cost-tracking",
+                      "tracing/structure/flushing-and-shutdown"
+                    ]
+                  },
+                  {
+                    "group": "Traces monitoring",
+                    "pages": [
+                      "tracing/events/introduction",
+                      "tracing/events/semantic-events",
+                      "tracing/events/events",
+                      "tracing/events/clusters"
+                    ]
+                  },
+                  "tracing/browser-agent-observability",
+                  "tracing/langgraph-visualization",
+                  {
+                    "group": "Troubleshooting",
+                    "pages": [
+                      "tracing/troubleshooting",
+                      "tracing/troubleshooting-opentelemetry"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Evaluations",
+                "pages": [
+                  "evaluations/introduction",
+                  "evaluations/quickstart",
+                  "evaluations/using-dataset",
+                  "evaluations/human-evaluators",
+                  "evaluations/configuration",
+                  "evaluations/manual-evaluation",
+                  "evaluations/cookbook",
+                  {
+                    "group": "Online Evaluators",
+                    "pages": [
+                      "evaluations/online-evaluators/introduction",
+                      "evaluations/online-evaluators/scoring-with-hosted-evaluators",
+                      "evaluations/online-evaluators/scoring-with-sdk"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Datasets",
+                "pages": [
+                  "datasets/introduction",
+                  "datasets/adding-data",
+                  "datasets/cli"
+                ]
+              },
+              {
+                "group": "Platform",
+                "pages": [
+                  "platform",
+                  "platform/viewing-traces",
+                  "platform/live-tracing",
+                  "platform/sql-editor",
+                  "platform/search",
+                  "custom-dashboards/overview",
+                  "queues/quickstart",
+                  "playground"
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "SDK",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Python",
             "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "sdk/python/instrumentation",
+              "sdk/python/types"
             ]
           }
         ]
@@ -71,52 +168,54 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Community",
+          "href": "https://discord.gg/ubSrVQmJef",
+          "icon": "discord",
+          "color": {
+            "dark": "#5562ea",
+            "light": "#5562ea"
+          }
         }
       ]
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/logo.png",
+    "dark": "/logo/logo.png"
+  },
+  "appearance": {
+    "default": "dark",
+    "strict": true
+  },
+  "background": {
+    "color": {
+      "dark": "#0F0F0F"
+    }
   },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Contact support",
+        "href": "mailto:admin@hipocap.com"
       }
     ],
     "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "type": "github",
+      "href": "https://github.com/hipocap/hipocap"
     }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "discord": "https://discord.gg/hipocap",
+      "twitter": "https://twitter.com/hipocap",
+      "linkedin": "https://linkedin.com/company/hipocap/",
+      "github": "https://github.com/hipocap"
+    }
+  },
+  "integrations": {
+    "posthog": {
+      "apiKey": "phc_dUMdjfNKf11jcHgtn7juSnT4P1pO0tafsPUWt4PuwG7",
+      "apiHost": "https://p.lmnr.ai"
     }
   }
 }

@@ -1,0 +1,90 @@
+---
+title: "Session replay for browser agents"
+---
+
+## Overview
+
+Laminar provides session replay for browser agents. Alongside your trace, you get a recording of the browser run synced with your spans (LLM calls, tool calls, and browser automation steps).
+
+This makes it much easier to debug failed automations and understand why the agent took a specific action.
+
+## Session replay for browser agents
+
+Laminar traces LLM calls via auto-instrumentation, and records browser sessions via native integrations with common browser automation frameworks:
+
+- [Browser Use](/tracing/integrations/browser-use)
+- [Stagehand](/tracing/integrations/stagehand)
+- [Puppeteer](/tracing/integrations/puppeteer)
+- [Playwright](/tracing/integrations/playwright)
+- [Skyvern](/tracing/integrations/skyvern)
+
+In the Laminar trace view, you can scrub the recording and correlate moments in the browser with the spans that produced them.
+
+## Getting started
+
+<Tip>
+If you don't have a project API key, you can get one by signing up on [Laminar](https://lmnr.ai) or spinning up a [self-hosted instance](https://github.com/lmnr-ai/lmnr) and getting a key from the project settings.
+</Tip>
+
+Follow the integration guide for your framework to enable tracing + session replay:
+
+- [Browser Use](/tracing/integrations/browser-use)
+- [Stagehand](/tracing/integrations/stagehand)
+- [Puppeteer](/tracing/integrations/puppeteer)
+- [Playwright](/tracing/integrations/playwright)
+- [Skyvern](/tracing/integrations/skyvern)
+
+### Privacy: masking inputs
+
+If your agent interacts with sensitive forms, configure session replay input masking so typed values aren’t recorded.
+
+<Tabs items={['TypeScript', 'Python']}>
+  <Tab title="TypeScript">
+    ```typescript
+    import { Laminar } from '@lmnr-ai/lmnr';
+
+    Laminar.initialize({
+      projectApiKey: process.env.LMNR_PROJECT_API_KEY,
+      sessionRecordingOptions: {
+        maskInputOptions: {
+          text: true,
+          textarea: true,
+          email: true,
+          tel: true,
+          number: true,
+        },
+      },
+    });
+    ```
+
+    See also: [`SessionRecordingOptions`](/sdk/typescript/types#sessionrecordingoptions) and [`Laminar.initialize`](/sdk/typescript/instrumentation#laminar-initializeoptions).
+  </Tab>
+  <Tab title="Python">
+    ```python
+    from lmnr import Laminar
+
+    Laminar.initialize(
+        project_api_key="...",
+        session_recording_options={
+            "mask_input_options": {
+                "text": True,
+                "textarea": True,
+                "email": True,
+                "tel": True,
+                "number": True,
+            }
+        },
+    )
+    ```
+
+    See also: [`SessionRecordingOptions`](/sdk/python/types#sessionrecordingoptions) and [`Laminar.initialize`](/sdk/python/instrumentation#laminar-initialize).
+  </Tab>
+</Tabs>
+
+## What it looks like
+
+When you open a trace, you’ll see a session replay panel below the timeline. Scrubbing the recording keeps the trace timeline in sync, so you can jump between what happened in the browser and the spans that produced it.
+
+This works similarly for other supported browser-agent frameworks (Stagehand, Playwright, Puppeteer, Skyvern) when instrumented via their Laminar integrations.
+
+<video src="/images/browser.mp4" controls loop muted playsInline className="block w-full" />
