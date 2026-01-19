@@ -6,16 +6,8 @@ Get up and running with HipoCap AI Security in minutes. This guide will walk you
 
 ## Installation
 
-### Python
-
 ```bash
 pip install 'hipocap[all]'
-```
-
-### JavaScript/TypeScript
-
-```bash
-npm add hipocap
 ```
 
 ## Step 1: Get Your API Credentials
@@ -45,8 +37,6 @@ HipoCap consists of two components:
 
 Initialize both when setting up:
 
-### Python
-
 ```python
 from hipocap import Hipocap
 import os
@@ -59,21 +49,6 @@ client = Hipocap.initialize(
     hipocap_base_url="http://localhost:8006",  # Security server
     hipocap_user_id=os.environ.get("HIPOCAP_USER_ID")
 )
-```
-
-### JavaScript/TypeScript
-
-```javascript
-import { Hipocap } from 'hipocap';
-
-Hipocap.initialize({
-  projectApiKey: process.env.HIPOCAP_API_KEY,
-  baseUrl: "http://localhost",      // Observability server
-  httpPort: 8000,
-  grpcPort: 8001,
-  hipocapBaseUrl: "http://localhost:8006",  // Security server
-  hipocapUserId: process.env.HIPOCAP_USER_ID
-});
 ```
 
 ## Step 4: Create Your First Policy
@@ -90,8 +65,6 @@ This policy defines your security rules and thresholds.
 ## Step 5: Protect Your First Function
 
 Now let's add security analysis to a function call:
-
-### Python Example
 
 ```python
 from hipocap import Hipocap, observe
@@ -140,52 +113,6 @@ def process_user_request():
         }
     
     return user_data
-```
-
-### JavaScript/TypeScript Example
-
-```javascript
-import { Hipocap, observe } from 'hipocap';
-
-// Initialize (from Step 3)
-Hipocap.initialize({
-  projectApiKey: process.env.HIPOCAP_API_KEY,
-  baseUrl: "http://localhost",
-  httpPort: 8000,
-  grpcPort: 8001,
-  hipocapBaseUrl: "http://localhost:8006",
-  hipocapUserId: process.env.HIPOCAP_USER_ID
-});
-
-async function processUserRequest() {
-  const userQuery = "What's my email?";
-  const userId = "123";
-  
-  // Execute function
-  const userData = await getUserData(userId);
-  
-  // Analyze for security threats
-  const result = await Hipocap.analyze({
-    functionName: "get_user_data",
-    functionResult: userData,
-    functionArgs: { user_id: userId },
-    userQuery: userQuery,
-    userRole: "user",
-    inputAnalysis: true,   // Stage 1: Fast detection
-    llmAnalysis: true,     // Stage 2: Deep analysis
-    policyKey: "default"
-  });
-  
-  // Check if safe to use
-  if (!result.safeToUse) {
-    return {
-      error: "Blocked by security policy",
-      reason: result.reason
-    };
-  }
-  
-  return userData;
-}
 ```
 
 ## What Happens Next?
