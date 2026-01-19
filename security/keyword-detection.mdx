@@ -1,0 +1,201 @@
+---
+title: Keyword Detection
+---
+
+HipoCap's Prompt Guard (Stage 1) uses specialized models to detect suspicious patterns and keywords in function calls and results. This provides fast, low-latency detection before more expensive LLM analysis.
+
+## What is Keyword Detection?
+
+Keyword detection identifies sensitive patterns and keywords in function inputs and outputs. It's part of Stage 1 (Input Analysis) and provides fast protection against sensitive data exposure.
+
+**Common keywords detected:**
+- Security keywords (confidential, classified, top secret)
+- Business keywords (proprietary, trade secret)
+- Action keywords (password reset, account verification)
+- Financial keywords (wire transfer, payment required)
+- Personal information (SSN, credit card, date of birth)
+
+## How It Works
+
+1. **Function Name Analysis**: Checks function names for suspicious patterns
+2. **Result Content Analysis**: Analyzes function results for malicious content
+3. **Pattern Matching**: Uses trained models to identify attack patterns
+4. **Threshold-Based Decisions**: 
+   - Score < `input_safe_threshold` (0.1) → PASS
+   - Score > `input_block_threshold` (0.5) → BLOCK
+   - Score between thresholds → Continue to Stage 2
+
+## Enabling Keyword Detection
+
+### Basic Setup
+
+Enable keyword detection when analyzing a function:
+
+```python
+from hipocap import Hipocap, observe
+
+client = Hipocap.initialize(...)
+
+@observe()
+def process_user_data(user_id: str):
+    data = fetch_user_data(user_id)
+    
+    result = client.analyze(
+        function_name="process_user_data",
+        function_result=data,
+        function_args={"user_id": user_id},
+        enable_keyword_detection=True  # Enable keyword detection
+    )
+    
+    if not result.get("safe_to_use"):
+        return {"error": "Sensitive keywords detected"}
+    
+    return data
+```
+
+### Custom Keywords
+
+Provide your own list of sensitive keywords:
+
+```python
+result = client.analyze(
+    function_name="process_user_data",
+    function_result=data,
+    function_args={"user_id": user_id},
+    enable_keyword_detection=True,
+    keywords=[
+        "confidential",
+        "classified",
+        "top secret",
+        "password reset",
+        "account verification"
+    ]
+)
+```
+
+## Default Keyword Patterns
+
+HipoCap automatically detects common sensitive keyword patterns:
+
+- **Security Keywords**: confidential, classified, top secret, restricted, sensitive
+- **Business Keywords**: proprietary, trade secret, do not share
+- **Action Keywords**: password reset, account verification, urgent action
+- **Financial Keywords**: wire transfer, payment required, refund, account suspended
+- **Personal Keywords**: SSN, social security, credit card, date of birth, mother's maiden name
+
+## Configuring Thresholds
+
+You can adjust detection sensitivity by modifying thresholds in your policy:
+
+```python
+result = client.analyze(
+    function_name="get_user_data",
+    function_result=user_data,
+    function_args={"user_id": user_id},
+    user_query=user_query,
+    user_role="user",
+    input_analysis=True,
+    policy_key="default"  # Policy contains threshold settings
+)
+```
+
+Thresholds are configured in the policy's `decision_thresholds`:
+- `input_safe_threshold`: Score below this passes Stage 1 (default: 0.1)
+- `input_block_threshold`: Score above this blocks at Stage 1 (default: 0.5)
+- `quarantine_safe_threshold`: Score below this passes Stage 3 (default: 0.1)
+- `quarantine_block_threshold`: Score above this blocks at Stage 3 (default: 0.5)
+
+## Response Format
+
+When keywords are detected, the analysis response includes:
+
+```python
+{
+    "keyword_detection": {
+        "detected_keywords": ["confidential", "SSN"],
+        "security_keywords": ["confidential"],
+        "personal_keywords": ["SSN"],
+        "keyword_positions": {
+            "confidential": 3,  # Number of occurrences
+            "SSN": 1
+        }
+    },
+    "final_decision": "BLOCKED",
+    "reason": "Sensitive keywords detected in function output",
+    "input_score": 0.7,  # Risk score from Stage 1
+    "safe_to_use": False
+}
+```
+
+## Practical Example: Email Processing
+
+Here's a complete example showing keyword detection in action:
+
+```python
+from hipocap import Hipocap, observe
+
+client = Hipocap.initialize(...)
+
+@observe()
+def process_email(email_id: str):
+    email_content = fetch_email(email_id)
+    
+    result = client.analyze(
+        function_name="process_email",
+        function_result=email_content,
+        function_args={"email_id": email_id},
+        enable_keyword_detection=True,
+        keywords=["confidential", "password reset", "account verification"],
+        llm_analysis=True  # Also check for sensitive keywords in LLM analysis
+    )
+    
+    # Check for detected keywords
+    keyword_detection = result.get("keyword_detection", {})
+    if keyword_detection and keyword_detection.get("detected_keywords"):
+        # Sensitive keywords detected
+        personal_keywords = keyword_detection.get("personal_keywords", [])
+        if "SSN" in personal_keywords:
+            # Block or redact sensitive data
+            return redact_sensitive_data(email_content)
+    
+    # Check overall safety
+    if not result.get("safe_to_use"):
+        return {"error": "Content blocked", "reason": result.get("reason")}
+    
+    return email_content
+```
+
+## Best Practices
+
+1. **Enable for Sensitive Functions** - Always enable keyword detection for functions that handle sensitive data
+2. **Custom Keywords** - Add domain-specific keywords relevant to your use case
+3. **Combine with Other Analysis** - Use keyword detection alongside LLM and quarantine analysis for comprehensive protection
+4. **Adjust Thresholds** - Fine-tune thresholds based on your false positive/negative rates
+5. **Monitor Results** - Regularly review detected keywords to improve your keyword lists
+
+## Integration with Policies
+
+Keyword detection can be configured in your governance policies:
+
+```json
+{
+  "functions": {
+    "process_user_data": {
+      "enable_keyword_detection": true,
+      "keywords": ["SSN", "credit card", "date of birth"],
+      "keyword_action": "BLOCK"
+    }
+  },
+  "decision_thresholds": {
+    "input_safe_threshold": 0.1,
+    "input_block_threshold": 0.5
+  }
+}
+```
+
+## Next Steps
+
+- [Prompt Injection Protection](/security/prompt-injection) - Learn about multi-stage analysis
+- [Threat Categories](/security/threat-categories) - Complete threat reference
+- [Setting up the Shield](/security/shield-setup) - Configure security analysis
+

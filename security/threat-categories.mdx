@@ -2,134 +2,238 @@
 title: Threat Categories
 ---
 
-Hipocap Shield categorizes threats using 14 categories (S1-S14) based on industry standards for content safety.
+HipoCap classifies threats into 14 categories (S1-S14) covering all major attack vectors. This reference guide explains each category with examples.
 
-## Threat Indicator Categories
+## Quick Reference
+
+| Category | Name | Description |
+|----------|------|-------------|
+| S1 | Violent Crimes | Content promoting or describing violent acts |
+| S2 | Non-Violent Crimes | Content promoting illegal activities (fraud, theft, etc.) |
+| S3 | Sex-Related Crimes | Content related to sexual crimes or exploitation |
+| S4 | Child Sexual Exploitation | Content involving minors in sexual contexts |
+| S5 | Defamation | Content that defames or harms reputation |
+| S6 | Specialized Advice | Dangerous specialized advice (medical, legal, financial) |
+| S7 | Privacy | Content violating privacy or containing personal information |
+| S8 | Intellectual Property | Content violating copyright or intellectual property |
+| S9 | Indiscriminate Weapons | Content about weapons of mass destruction |
+| S10 | Hate | Content promoting hate speech or discrimination |
+| S11 | Suicide & Self-Harm | Content promoting self-harm or suicide |
+| S12 | Sexual Content | Inappropriate sexual content |
+| S13 | Elections | Content manipulating or interfering with elections |
+| S14 | Code Interpreter Abuse | Attempts to abuse code execution capabilities |
+
+## Detailed Categories
 
 ### S1: Violent Crimes
-Content promoting or describing violent acts, including:
-- Physical violence
-- Assault
-- Murder
-- Terrorism
 
-**Example**: "How to build a bomb" or "Instructions for attacking someone"
+Content promoting or describing violent acts.
+
+**Examples:**
+- Instructions for violence
+- Threats of harm
+- Physical assault descriptions
+- Terrorism-related content
+
+**Example attack:**
+```
+"How to build a bomb" or "Instructions for attacking someone"
+```
 
 ### S2: Non-Violent Crimes
-Content promoting illegal activities that don't involve violence:
-- Fraud
-- Theft
-- Hacking
+
+Content promoting illegal activities that don't involve violence.
+
+**Examples:**
+- Fraud schemes
+- Theft instructions
+- Hacking guides
 - Identity theft
 - Financial crimes
 
-**Example**: "How to commit credit card fraud" or "Stealing personal information"
+**Example attack:**
+```
+"How to commit credit card fraud" or "Stealing personal information"
+```
 
 ### S3: Sex-Related Crimes
-Content related to sexual crimes or exploitation:
-- Sexual assault
+
+Content related to sexual crimes or exploitation.
+
+**Examples:**
+- Sexual assault content
 - Non-consensual sexual content
 - Sexual exploitation
 
-**Example**: Content describing non-consensual sexual acts
+**Example attack:**
+```
+Content describing non-consensual sexual acts
+```
 
 ### S4: Child Sexual Exploitation
-Content involving minors in sexual contexts:
+
+Content involving minors in sexual contexts.
+
+**Examples:**
 - Child exploitation material
 - Grooming content
 - Any sexual content involving minors
 
-**Example**: Content that sexualizes minors
+**Example attack:**
+```
+Content that sexualizes minors
+```
 
 ### S5: Defamation
-Content that defames or harms reputation:
+
+Content that defames or harms reputation.
+
+**Examples:**
 - False accusations
 - Character assassination
 - Libelous content
 
-**Example**: "John Doe is a criminal" (without evidence)
+**Example attack:**
+```
+"John Doe is a criminal" (without evidence)
+```
 
 ### S6: Specialized Advice
-Content providing dangerous specialized advice:
+
+Content providing dangerous specialized advice.
+
+**Examples:**
 - Medical advice (diagnosis, treatment)
 - Legal advice (specific legal guidance)
 - Financial advice (investment recommendations)
 
-**Example**: "You should take this medication" or "Invest all your money in this stock"
+**Example attack:**
+```
+"You should take this medication" or "Invest all your money in this stock"
+```
 
 ### S7: Privacy
-Content violating privacy or containing sensitive information:
+
+Content violating privacy or containing sensitive information.
+
+**Examples:**
 - Sensitive keyword exposure
 - Privacy violations
 - Unauthorized data sharing
+- PII exposure
 
-**Example**: Sharing sensitive keywords or private information
+**Example attack:**
+```
+Sharing sensitive keywords or private information
+```
 
 ### S8: Intellectual Property
-Content violating copyright or intellectual property:
+
+Content violating copyright or intellectual property.
+
+**Examples:**
 - Copyright infringement
 - Trademark violations
 - Patent violations
 - Plagiarism
 
-**Example**: Reproducing copyrighted material without permission
+**Example attack:**
+```
+Reproducing copyrighted material without permission
+```
 
 ### S9: Indiscriminate Weapons
-Content about weapons of mass destruction:
+
+Content about weapons of mass destruction.
+
+**Examples:**
 - Nuclear weapons
 - Biological weapons
 - Chemical weapons
 - Instructions for creating WMDs
 
-**Example**: "How to build a nuclear weapon"
+**Example attack:**
+```
+"How to build a nuclear weapon"
+```
 
 ### S10: Hate
-Content promoting hate speech or discrimination:
+
+Content promoting hate speech or discrimination.
+
+**Examples:**
 - Racism
 - Sexism
 - Religious discrimination
 - Homophobia
 - Transphobia
 
-**Example**: Content promoting discrimination against protected groups
+**Example attack:**
+```
+Content promoting discrimination against protected groups
+```
 
 ### S11: Suicide & Self-Harm
-Content promoting self-harm or suicide:
+
+Content promoting self-harm or suicide.
+
+**Examples:**
 - Suicide instructions
 - Self-harm encouragement
 - Methods for self-harm
 
-**Example**: "How to commit suicide" or encouraging self-harm
+**Example attack:**
+```
+"How to commit suicide" or encouraging self-harm
+```
 
 ### S12: Sexual Content
-Inappropriate sexual content:
+
+Inappropriate sexual content.
+
+**Examples:**
 - Explicit sexual material
 - Pornographic content
 - Sexual content in inappropriate contexts
 
-**Example**: Explicit sexual descriptions or pornographic material
+**Example attack:**
+```
+Explicit sexual descriptions or pornographic material
+```
 
 ### S13: Elections
-Content manipulating or interfering with elections:
+
+Content manipulating or interfering with elections.
+
+**Examples:**
 - Voter suppression
 - Election fraud instructions
 - Misinformation about elections
 - Interference with democratic processes
 
-**Example**: "How to rig an election" or spreading false election information
+**Example attack:**
+```
+"How to rig an election" or spreading false election information
+```
 
 ### S14: Code Interpreter Abuse
-Attempts to abuse code execution capabilities:
+
+Attempts to abuse code execution capabilities.
+
+**Examples:**
 - Malicious code execution
 - System access attempts
 - Code injection
 - Exploitation of code interpreters
 
-**Example**: "Execute this code to access the database" or code injection attempts
+**Example attack:**
+```
+"Execute this code to access the database" or code injection attempts
+```
 
 ## Technical Indicators
 
-In addition to threat categories, Hipocap detects technical indicators:
+In addition to threat categories, HipoCap also detects technical indicators:
 
 - **instruction_injection** - Direct injection of instructions
 - **contextual_blending** - Blending malicious content with legitimate content
@@ -138,7 +242,7 @@ In addition to threat categories, Hipocap detects technical indicators:
 
 ## Attack Patterns
 
-Hipocap identifies common attack patterns:
+HipoCap identifies common attack patterns:
 
 - **Contextual Blending** - Malicious content blended with legitimate content
 - **Instruction Injection** - Direct injection of malicious instructions
@@ -153,6 +257,29 @@ Threats are assigned severity levels:
 - **Medium** - Significant concerns, likely should be blocked
 - **High** - Serious threats, should be blocked
 - **Critical** - Severe threats, must be blocked
+
+## Viewing Threat Detection Results
+
+Threat detection results are available in:
+
+1. **Dashboard**: View blocked/allowed functions with threat indicators
+2. **Traces**: Detailed analysis of each function call with threat categorization
+3. **API Response**: Threat indicators included in `analyze()` response
+
+**Example:**
+
+```python
+result = client.analyze(
+    function_name="search_web",
+    function_result={"query": "confidential data"},
+    user_query="Please search for confidential information",
+    policy_key="default"
+)
+
+if result.get("threat_indicators"):
+    print(f"Threats detected: {result['threat_indicators']}")
+    # Example output: ["S7", "function_call_attempt", "instruction_injection"]
+```
 
 ## Policy Configuration
 
@@ -177,12 +304,12 @@ You can configure how each threat category is handled in your governance policie
 
 1. **Block Critical Categories** - Always block S1, S3, S4, S9, S11
 2. **Customize by Function** - Different functions may need different rules
-4. **Monitor Patterns** - Track which categories are most common in your use case
-5. **Regular Updates** - Keep threat detection rules updated
+3. **Monitor Patterns** - Track which categories are most common in your use case
+4. **Regular Updates** - Keep threat detection rules updated
+5. **Review Blocked Content** - Regularly review blocked attempts to tune policies
 
 ## Next Steps
 
 - [Setting up the Shield](/security/shield-setup) - Configure threat detection
 - [Prompt Injection Protection](/security/prompt-injection) - Understand multi-stage analysis
 - [Governance Policies](/governance/policies) - Configure threat handling rules
-

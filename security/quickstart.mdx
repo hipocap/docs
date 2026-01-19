@@ -1,0 +1,235 @@
+---
+title: Quick Start
+---
+
+Get up and running with HipoCap AI Security in minutes. This guide will walk you through installation, setup, and your first security analysis.
+
+## Installation
+
+### Python
+
+```bash
+pip install 'hipocap[all]'
+```
+
+### JavaScript/TypeScript
+
+```bash
+npm add hipocap
+```
+
+## Step 1: Get Your API Credentials
+
+You'll need two pieces of information from your HipoCap dashboard:
+
+1. **API Key** (`HIPOCAP_API_KEY`) - For authentication
+2. **User ID** (`HIPOCAP_USER_ID`) - For user context and RBAC
+
+Get these from your HipoCap dashboard at http://localhost:3000 (or your hosted instance).
+
+## Step 2: Set Environment Variables
+
+Add these to your environment:
+
+```bash
+export HIPOCAP_API_KEY=your-api-key-here
+export HIPOCAP_USER_ID=your-user-id-here
+export HIPOCAP_SERVER_URL=http://localhost:8006  # Optional, for self-hosted
+```
+
+## Step 3: Initialize HipoCap
+
+HipoCap consists of two components:
+- **Observability Server** (port 8000/8001) - Handles tracing and telemetry
+- **Security Server** (port 8006) - Performs security analysis
+
+Initialize both when setting up:
+
+### Python
+
+```python
+from hipocap import Hipocap
+import os
+
+client = Hipocap.initialize(
+    project_api_key=os.environ.get("HIPOCAP_API_KEY"),
+    base_url="http://localhost",      # Observability server
+    http_port=8000,
+    grpc_port=8001,
+    hipocap_base_url="http://localhost:8006",  # Security server
+    hipocap_user_id=os.environ.get("HIPOCAP_USER_ID")
+)
+```
+
+### JavaScript/TypeScript
+
+```javascript
+import { Hipocap } from 'hipocap';
+
+Hipocap.initialize({
+  projectApiKey: process.env.HIPOCAP_API_KEY,
+  baseUrl: "http://localhost",      // Observability server
+  httpPort: 8000,
+  grpcPort: 8001,
+  hipocapBaseUrl: "http://localhost:8006",  // Security server
+  hipocapUserId: process.env.HIPOCAP_USER_ID
+});
+```
+
+## Step 4: Create Your First Policy
+
+Before using security analysis, you need to create a policy in the dashboard:
+
+1. Navigate to your project in the HipoCap dashboard
+2. Go to the Policies section
+3. Click "Create Policy"
+4. Configure basic settings (you can customize later)
+
+This policy defines your security rules and thresholds.
+
+## Step 5: Protect Your First Function
+
+Now let's add security analysis to a function call:
+
+### Python Example
+
+```python
+from hipocap import Hipocap, observe
+import os
+
+# Initialize (from Step 3)
+client = Hipocap.initialize(
+    project_api_key=os.environ.get("HIPOCAP_API_KEY"),
+    base_url="http://localhost",
+    http_port=8000,
+    grpc_port=8001,
+    hipocap_base_url="http://localhost:8006",
+    hipocap_user_id=os.environ.get("HIPOCAP_USER_ID")
+)
+
+@observe()
+def get_user_data(user_id: str):
+    """Retrieve user data - automatically traced."""
+    return {"user_id": user_id, "email": f"user{user_id}@example.com"}
+
+@observe()
+def process_user_request():
+    user_query = "What's my email?"
+    user_id = "123"
+    
+    # Execute function
+    user_data = get_user_data(user_id)
+    
+    # Analyze for security threats
+    result = client.analyze(
+        function_name="get_user_data",
+        function_result=user_data,
+        function_args={"user_id": user_id},
+        user_query=user_query,
+        user_role="user",
+        input_analysis=True,   # Stage 1: Fast detection
+        llm_analysis=True,     # Stage 2: Deep analysis
+        policy_key="default"
+    )
+    
+    # Check if safe to use
+    if not result.get("safe_to_use"):
+        return {
+            "error": "Blocked by security policy",
+            "reason": result.get("reason")
+        }
+    
+    return user_data
+```
+
+### JavaScript/TypeScript Example
+
+```javascript
+import { Hipocap, observe } from 'hipocap';
+
+// Initialize (from Step 3)
+Hipocap.initialize({
+  projectApiKey: process.env.HIPOCAP_API_KEY,
+  baseUrl: "http://localhost",
+  httpPort: 8000,
+  grpcPort: 8001,
+  hipocapBaseUrl: "http://localhost:8006",
+  hipocapUserId: process.env.HIPOCAP_USER_ID
+});
+
+async function processUserRequest() {
+  const userQuery = "What's my email?";
+  const userId = "123";
+  
+  // Execute function
+  const userData = await getUserData(userId);
+  
+  // Analyze for security threats
+  const result = await Hipocap.analyze({
+    functionName: "get_user_data",
+    functionResult: userData,
+    functionArgs: { user_id: userId },
+    userQuery: userQuery,
+    userRole: "user",
+    inputAnalysis: true,   // Stage 1: Fast detection
+    llmAnalysis: true,     // Stage 2: Deep analysis
+    policyKey: "default"
+  });
+  
+  // Check if safe to use
+  if (!result.safeToUse) {
+    return {
+      error: "Blocked by security policy",
+      reason: result.reason
+    };
+  }
+  
+  return userData;
+}
+```
+
+## What Happens Next?
+
+1. **Traces are captured** - All function calls are automatically traced
+2. **Security analysis runs** - Function calls are analyzed for threats
+3. **View in dashboard** - Open your HipoCap dashboard to see traces and security events
+
+## Understanding the Analysis Response
+
+The `analyze()` method returns a security analysis result:
+
+```python
+{
+    "safe_to_use": bool,           # True if content is safe
+    "final_decision": str,         # "ALLOWED", "BLOCKED", or "REVIEW_REQUIRED"
+    "reason": str,                 # Explanation of decision
+    "input_score": float,          # Stage 1 score (0.0-1.0)
+    "llm_score": float,            # Stage 2 score (0.0-1.0)
+    "quarantine_score": float,     # Stage 3 score (0.0-1.0)
+    "threat_indicators": [str],    # List of threat categories (S1-S14)
+    "severity": str,               # "safe", "low", "medium", "high", "critical"
+    "blocked_at": str              # Stage where content was blocked (if blocked)
+}
+```
+
+## Common Issues
+
+### "Policy not found" error
+- Make sure you've created a policy in the dashboard (Step 4)
+- Check that the `policy_key` matches your policy name
+
+### Connection errors
+- Verify your `HIPOCAP_SERVER_URL` is correct
+- Check that the Security Server is running on port 8006
+- Ensure your Observability Server is running on ports 8000/8001
+
+### Analysis not running
+- Confirm `input_analysis=True` or `llm_analysis=True` is set
+- Check that your API key has the correct permissions
+
+## Next Steps
+
+- [Learn about Shields](/security/shield-setup) - Protect direct user input
+- [Understand Multi-Stage Analysis](/security/prompt-injection) - How threat detection works
+- [Explore Threat Categories](/security/threat-categories) - What HipoCap protects against
+

@@ -25,11 +25,27 @@
           {
             "group": "AI Security",
             "pages": [
-              "security/introduction",
-              "security/shield-setup",
-              "security/pii-masking",
-              "security/prompt-injection",
-              "security/threat-categories"
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "security/introduction",
+                  "security/quickstart"
+                ]
+              },
+              {
+                "group": "Core Features",
+                "pages": [
+                  "security/shield-setup",
+                  "security/prompt-injection",
+                  "security/keyword-detection"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "security/threat-categories"
+                ]
+              }
             ]
           },
           {

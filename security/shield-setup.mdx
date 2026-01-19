@@ -2,173 +2,208 @@
 title: Setting up the Shield
 ---
 
-The Hipocap Shield protects your AI applications by analyzing function calls before execution. This guide shows you how to set it up.
+Shields are prompt-based blocking rules designed specifically for **Direct Prompt Injection** detection. They allow you to analyze any text content before it reaches your LLM, protecting against malicious instructions directly inserted into user input.
 
-## Prerequisites
+## What are Shields?
 
-- Hipocap account and project
-- Python application with function calls you want to protect
-- API key from your Hipocap project
-- Hipocap server running (self-hosted or cloud)
+Shields analyze text content and decide whether to block or allow it based on custom rules you define. Unlike the multi-stage defense pipeline (which analyzes function calls), Shields work on raw text input - perfect for protecting direct user input.
 
-## Installation
+**Use Shields when:**
+- You want to analyze user input before it reaches your LLM
+- You need fast, real-time protection against direct prompt injection
+- You want custom blocking rules for specific attack patterns
 
-Install the Hipocap Python client:
+## Creating a Shield
 
-```bash
-pip install hipocap
-```
+### Step 1: Access the Shields Section
 
-## Basic Setup
+1. Navigate to your project in the HipoCap dashboard
+2. Go to the Shields section:
+   - Navigate to `/project/[your-project-id]/shields`
+   - Or click "Shields" in the sidebar under "Monitoring"
 
-### 1. Initialize Hipocap
+### Step 2: Create a New Shield
 
-Hipocap integrates with Laminar for observability. Initialize both together:
+1. Click **"Create Shield"** to open the creation form
+2. Fill in the shield configuration:
+
+   - **Shield Key**: Unique identifier (e.g., `jailbreak`, `data-extraction`, `system-prompt-leak`)
+   - **Name**: Human-readable name (e.g., "Jailbreak Protection")
+   - **Description**: Optional description of the shield's purpose
+   - **Prompt Description**: Description of the type of prompts this shield should analyze
+   - **What to Block**: Detailed description of content patterns to block
+   - **What Not to Block**: Exceptions or content that should be allowed
+
+3. Click **"Save"** - the shield will be active immediately
+
+### Example Shield Configuration
+
+**Shield Key:** `jailbreak`
+
+**Name:** Jailbreak Protection
+
+**Description:** Protects against attempts to override system instructions
+
+**Prompt Description:** User prompts that attempt to manipulate the AI system
+
+**What to Block:**
+- Instructions to ignore previous prompts
+- Attempts to reveal system prompts
+- Commands to override safety guidelines
+- Requests to act as a different system
+
+**What Not to Block:**
+- Legitimate questions about how the system works
+- Requests for information (not system manipulation)
+
+## Using Shields in Code
+
+Once you've created a shield, use it in your code to analyze content:
+
+### Python
 
 ```python
 from hipocap import Hipocap
 
-# Initialize Hipocap with Laminar
-observ_client = Hipocap.initialize(
-    project_api_key="your-laminar-project-api-key",
-    base_url="http://localhost",  # Laminar base URL
-    http_port=8000,  # Laminar HTTP port
-    grpc_port=8001,  # Laminar gRPC port
-    hipocap_base_url="http://localhost:8006",  # Hipocap server URL
-    hipocap_api_key="your-hipocap-api-key",
-    hipocap_user_id="your-user-id"
-)
-```
-
-### 2. Analyze Function Calls
-
-Call `analyze()` on the observability client returned from `initialize()`:
-
-```python
-from hipocap import Hipocap
-
-# Initialize and get the observability client
-observ_client = Hipocap.initialize(
-    project_api_key="your-hipocap-api-key",
-    # ... other config ...
+# Initialize HipoCap (from quickstart guide)
+client = Hipocap.initialize(
+    project_api_key="your-api-key-here",
+    base_url="http://localhost",
+    http_port=8000,
+    grpc_port=8001,
+    hipocap_base_url="http://localhost:8006",
+    hipocap_user_id="your-user-id-here"
 )
 
-# Analyze function result after execution
-result = observ_client.analyze(
-    function_name="send_email",
-    function_result=email_content,  # Actual function result
-    function_args={"to": to, "subject": subject},
-    user_query=user_query,
-    user_role="user",
-    input_analysis=True,
-    llm_analysis=True,
-    quarantine_analysis=False
+# Analyze content with a shield
+content = input("Enter content to analyze: ")
+result = client.shield(
+    shield_key="jailbreak",
+    content=content,
+    require_reason=True  # Optional: get explanation for decision
 )
 
-if result.get("safe_to_use"):
-    # Safe to use - return the result
-    return email_content
+# Check the decision
+if result["decision"] == "BLOCK":
+    print(f"Content blocked: {result.get('reason')}")
 else:
-    # Blocked or requires review
-    raise SecurityError(f"Blocked: {result.get('reason')}")
+    print("Content allowed")
+    # Safe to send to your LLM
 ```
 
-## Analysis Modes
+### JavaScript/TypeScript
 
-### Quick Analysis Mode
+```javascript
+import { Hipocap } from 'hipocap';
 
-For low-latency requirements, use quick analysis:
+// Analyze content with a shield
+const content = userInput;
+const result = await Hipocap.shield({
+  shieldKey: "jailbreak",
+  content: content,
+  requireReason: true  // Optional: get explanation
+});
+
+// Check the decision
+if (result.decision === "BLOCK") {
+  console.log(`Content blocked: ${result.reason}`);
+} else {
+  console.log("Content allowed");
+  // Safe to send to your LLM
+}
+```
+
+## Shield Response
+
+The `shield()` method returns a simple response:
 
 ```python
-# Use the observability client from initialization
-result = observ_client.analyze(
-    function_name="send_email",
-    function_result=email_content,
-    quick_analysis=True  # Faster, simplified analysis
+{
+    "decision": str,      # "BLOCK" or "ALLOW"
+    "reason": str         # Optional explanation if require_reason=True
+}
+```
+
+## Shield Features
+
+- **Analyze any text input** - Not limited to function calls
+- **Custom blocking rules** - Define what to block per shield
+- **Fast decision-making** - Real-time protection
+- **Optional reasoning** - Get explanations for blocked content
+- **Active/Inactive toggle** - Enable or disable shields as needed
+
+## Common Use Cases
+
+### 1. Protecting User Input
+
+```python
+# Before sending user input to your LLM
+user_input = request.form.get("message")
+
+result = client.shield(
+    shield_key="jailbreak",
+    content=user_input
+)
+
+if result["decision"] == "BLOCK":
+    return {"error": "Invalid input detected"}
+    
+# Safe to proceed
+response = llm_client.chat.completions.create(
+    messages=[{"role": "user", "content": user_input}]
 )
 ```
 
-### Full Analysis Mode
+### 2. Multiple Shields
 
-For maximum security, enable all stages:
-
-```python
-# Use the observability client from initialization
-result = observ_client.analyze(
-    function_name="send_email",
-    function_result=email_content,
-    input_analysis=True,      # Stage 1: Input analysis
-    llm_analysis=True,         # Stage 2: LLM analysis
-    quarantine_analysis=True,  # Stage 3: Quarantine analysis
-    quick_analysis=False        # Full detailed analysis
-)
-```
-
-## Handling Decisions
-
-The `analyze()` method returns a dictionary with analysis results:
+You can use multiple shields for different protection layers:
 
 ```python
-# Use the observability client from initialization
-result = observ_client.analyze(
-    function_name="send_email",
-    function_result=email_content,
-    function_args={"to": to, "subject": subject}
-)
+# Check against multiple shields
+jailbreak_result = client.shield(shield_key="jailbreak", content=content)
+data_extraction_result = client.shield(shield_key="data-extraction", content=content)
 
-if result.get("safe_to_use"):
-    # Safe to use - return the result
-    return email_content
-else:
-    # Blocked - raise security error
-    raise SecurityError(f"Blocked: {result.get('reason')}")
+# Block if any shield blocks
+if jailbreak_result["decision"] == "BLOCK" or data_extraction_result["decision"] == "BLOCK":
+    return {"error": "Content blocked"}
 ```
 
-## Configuration Options
-
-### Analysis Stages
-
-- `input_analysis` (default: `True`) - Enable Stage 1 input analysis
-- `llm_analysis` (default: `False`) - Enable Stage 2 LLM analysis
-- `quarantine_analysis` (default: `False`) - Enable Stage 3 quarantine analysis
-- `quick_analysis` (default: `False`) - Use quick mode for faster analysis
-
-### Keyword Detection
+### 3. Getting Detailed Reasons
 
 ```python
-# Use the observability client from initialization
-result = observ_client.analyze(
-    function_name="send_email",
-    function_result=email_content,
-    enable_keyword_detection=True,
-    keywords=["confidential", "classified", "password reset"]
+result = client.shield(
+    shield_key="jailbreak",
+    content=content,
+    require_reason=True  # Get explanation
 )
+
+if result["decision"] == "BLOCK":
+    # Log the reason for review
+    logger.warning(f"Blocked: {result['reason']}")
 ```
 
-### Policy Selection
+## Best Practices
 
-```python
-# Use the observability client from initialization
-result = observ_client.analyze(
-    function_name="send_email",
-    function_result=email_content,
-    policy_key="production-policy"  # Use specific policy
-)
-```
+1. **Create Specific Shields** - Create separate shields for different attack vectors (jailbreak, data extraction, etc.)
+2. **Test Your Shields** - Test shields with known attack patterns to ensure they work correctly
+3. **Use for Direct Input** - Use Shields for direct user input; use `analyze()` for function call protection
+4. **Combine with Function Analysis** - Use both Shields and the multi-stage pipeline for comprehensive protection
+5. **Review Blocked Content** - Regularly review blocked content to tune your shield rules
 
-## Integration with Observability
+## Shields vs. Function Analysis
 
-All Shield decisions are automatically traced in Hipocap's observability platform (powered by Laminar). Analysis results are sent as OpenTelemetry spans, so you can:
+**Use Shields when:**
+- Analyzing direct user input before it reaches your LLM
+- You need fast, simple blocking rules
+- You want to protect against direct prompt injection
 
-- View blocked attempts in the traces view
-- Analyze security patterns across all function calls
-- Review audit logs for compliance
-
-The analysis creates a span named `hipocap.security.analysis` with all analysis results as span attributes.
+**Use `analyze()` when:**
+- Analyzing function calls and their results
+- You need multi-stage analysis (Input → LLM → Quarantine)
+- You want to detect indirect prompt injection in function results
 
 ## Next Steps
 
-- [Keyword Detection](/security/pii-masking) - Configure keyword detection
-- [Prompt Injection Protection](/security/prompt-injection) - Understand multi-stage analysis
-- [Governance & RBAC](/governance/introduction) - Set up access control
-
+- [Prompt Injection Protection](/security/prompt-injection) - Learn about multi-stage analysis for function calls
+- [Keyword Detection](/security/keyword-detection) - Configure keyword detection
+- [Threat Categories](/security/threat-categories) - Understand what HipoCap protects against
