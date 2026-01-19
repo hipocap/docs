@@ -60,8 +60,6 @@ Shields analyze text content and decide whether to block or allow it based on cu
 
 Once you've created a shield, use it in your code to analyze content:
 
-### Python
-
 ```python
 from hipocap import Hipocap
 
@@ -89,28 +87,6 @@ if result["decision"] == "BLOCK":
 else:
     print("Content allowed")
     # Safe to send to your LLM
-```
-
-### JavaScript/TypeScript
-
-```javascript
-import { Hipocap } from 'hipocap';
-
-// Analyze content with a shield
-const content = userInput;
-const result = await Hipocap.shield({
-  shieldKey: "jailbreak",
-  content: content,
-  requireReason: true  // Optional: get explanation
-});
-
-// Check the decision
-if (result.decision === "BLOCK") {
-  console.log(`Content blocked: ${result.reason}`);
-} else {
-  console.log("Content allowed");
-  // Safe to send to your LLM
-}
 ```
 
 ## Shield Response
